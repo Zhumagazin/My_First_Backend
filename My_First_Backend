@@ -1,0 +1,54 @@
+const express = require("express");
+const auth = require('basic-auth')
+const app = express();
+
+
+
+app.get("/", function(request, response){
+    song_list = ["My Way", "Theme from New York, New York", "Let it snow! Let it snow! Let it snow! ", "Iam not afraid", "Nice and Easy", "I love you", "Blue moon", "Love is here to stay", "It happened in Monterey", "Strangers in the night", "Fly me to the moon", "Jingle Bells", "Its a wonderful World", "Santa Claus is coming to town", "One for My baby", "Have yourself a Merry little Christmas", "Thats Life", "Moon river", "Come Fly with me", "Silent Night"]
+    random  = Math.floor(Math.random()*Math.floor(song_list.length));
+    response.send(song_list[random]);
+});
+
+app.get("/birth_date", function(request, response){
+    response.send("December 12, 1915");
+});
+
+app.get("/birth_city", function(request, response){
+    response.send("Hoboken, New Jersey");
+});
+
+app.get("/wives", function(request, response){
+    wife1 = "Nancy Barbato";
+    wife2 = "Ava Gardner";
+    wife3 = "Mia Farrow";
+    wife4 = "Barbara Marx";
+    response.send("Nancy Barbato, " + "Ava Gardner, " + "Mia Farrow, " + "Barbara Marx");
+});
+
+app.get("/picture", function(request, response){
+    var url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Frank_Sinatra_%281942_photo_portrait%29.jpg/800px-Frank_Sinatra_%281942_photo_portrait%29.jpg"
+    response.send(`<img src='${url}'>`);
+});
+
+app.get("/public", function(request, response){
+    response.send("Everybody can see this page");
+});
+
+app.use((request, response, next) => {
+    let user = auth(request);
+
+    if (user === undefined || user['name'] !== 'admin' || user['pass'] !== 'admin') {
+        response.statusCode = 401;
+        response.setHeader('WWW-Authenticate', 'Basic realm="Node"');
+        response.end('401 Not authorized');
+    } else {
+        next();
+    }
+});
+
+app.get("/protected", function(request, response){
+    response.send("Welcome, authenticated client");
+});
+
+app.listen(8080);
